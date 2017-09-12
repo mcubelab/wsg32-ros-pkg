@@ -334,16 +334,13 @@ void GripperActionServer::run()
 
   // Setup joint states
   sensor_msgs::JointState joint_state;
-  joint_state.position.resize(3);
-  joint_state.name.resize(3);
+  joint_state.position.resize(2);
+  joint_state.name.resize(2);
 
-  std::string joint_name;
-  nh_.param<std::string>("joint_name", joint_name, "opening");
   nh_.param<double>("gripper_speed", gripper_speed_, 0.1);
 
-  joint_state.name[0] = joint_name;
-  joint_state.name[1] = "gripper_left_joint";
-  joint_state.name[2] = "gripper_right_joint";
+  joint_state.name[0] = "gripper_left_joint";
+  joint_state.name[1] = "gripper_right_joint";
 
   //Loop waiting for orders and updating the state
   //Create the msg to send
@@ -370,9 +367,9 @@ void GripperActionServer::run()
     state_pub_.publish(status_msg);
 
     joint_state.header.stamp = ros::Time::now();
-    joint_state.position[0] = ((double) op)/1000.0;
-    joint_state.position[1] = joint_state.position[0]/2;
-    joint_state.position[2] = joint_state.position[0]/2;
+    double val = ((double) op)/1000.0;
+    joint_state.position[0] = val/2;
+    joint_state.position[1] = val/2;
     joint_states_pub_.publish(joint_state);
 
     ros::spinOnce();
