@@ -90,7 +90,7 @@ bool GripperActionServer::initialize()
 }
 
 bool GripperActionServer::moveSrv(wsg_32_common::Move::Request &req,
-				  wsg_32_common::Move::Response &res)
+                                  wsg_32_common::Move::Response &res)
 {
   if ( (req.width >= 0.0 && req.width <= MAX_OPENING) && (req.speed > 0.0 && req.speed <= MAX_SPEED) )
   {
@@ -255,40 +255,46 @@ void GripperActionServer::goalCB(GoalHandle gh)
   wsg_32_common::Move::Request req;
   wsg_32_common::Move::Response res;
   ROS_INFO("GOT A GOAL: EFFORT=%f POSITION=%f", gh.getGoal()->command.max_effort, gh.getGoal()->command.position);
-  if(gh.getGoal()->command.position > GRIPPER_RELEASE)
-  {
-    req.width = gh.getGoal()->command.position-GRIPPER_RELEASE;
-    req.speed = gripper_speed_;
-    if(!releaseSrv(req,res))
-    {
-      ROS_ERROR("Could not service request");
-      if(gh.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
-      {
-        gh.setCanceled();
-      }
-    }
-  }
 
-  else if(gh.getGoal()->command.position < 0)
-  {
-    req.width = -gh.getGoal()->command.position;
-    req.speed = gripper_speed_;
-    if(!moveSrv(req,res))
-    {
-      ROS_ERROR("Could not service request");
-      if(gh.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
-      {
-        gh.setCanceled();
-      }
-    }
-  }
-  else
+  if (!nh_.hasParam("gripper_speed"))
+    nh_.setParam("gripper_speed",MAX_SPEED);
+  
+  nh_.getParamCached("gripper_speed", gripper_speed_);
+  
+  // if(gh.getGoal()->command.position > GRIPPER_RELEASE)
+  // {
+  //   req.width = gh.getGoal()->command.position-GRIPPER_RELEASE;
+  //   req.speed = gripper_speed_;
+  //   if(!releaseSrv(req,res))
+  //   {
+  //     ROS_ERROR("Could not service request");
+  //     if(gh.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
+  //     {
+  //       gh.setCanceled();
+  //     }
+  //   }
+  // }
+
+  // else if(gh.getGoal()->command.position < 0)
+  // {
+  //   req.width = -gh.getGoal()->command.position;
+  //   req.speed = gripper_speed_;
+  //   if(!moveSrv(req,res))
+  //   {
+  //     ROS_ERROR("Could not service request");
+  //     if(gh.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
+  //     {
+  //       gh.setCanceled();
+  //     }
+  //   }
+  // }
+  // else
   {
     req.width = gh.getGoal()->command.position;
     req.speed = gripper_speed_;
-    if(!graspSrv(req,res))
+    //    if(!graspSrv(req,res))
+    if(!moveSrv(req,res))
     {
-
       ROS_ERROR("Could not service request");
       if(gh.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
       {
@@ -337,7 +343,7 @@ void GripperActionServer::run()
   joint_state.position.resize(2);
   joint_state.name.resize(2);
 
-  nh_.param<double>("gripper_speed", gripper_speed_, 0.1);
+  nh_.getParamCached("gripper_speed", gripper_speed_);
 
   joint_state.name[0] = "gripper_left_joint";
   joint_state.name[1] = "gripper_right_joint";
