@@ -108,6 +108,9 @@ bool GripperActionServer::moveSrv(wsg_32_common::Move::Request &req,
     ROS_WARN("Speed values are outside the gripper's physical limits ([0.0001 - %f m/s])  Using clamped values.", MAX_SPEED);
     res.error = move(req.width * 1000, req.speed * 1000, false, false);
   }
+  if (res.error == 255) {
+    ack_fault();
+  }
   ROS_DEBUG("Target position reached.");
   return true;
 }
