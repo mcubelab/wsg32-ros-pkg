@@ -11,12 +11,14 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   control_msgs
   wsg_32_common
+  hardware_interface
+  controller_manager
 )
 
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES vh_pixelmap
-  CATKIN_DEPENDS roscpp std_msgs std_srvs wsg_32_common control_msgs actionlib
+  CATKIN_DEPENDS roscpp std_msgs std_srvs wsg_32_common control_msgs actionlib hardware_interface controller_manager
 #  DEPENDS system_lib
 )
 
