@@ -342,8 +342,9 @@ void GripperActionServer::write(const ros::Time& time, const ros::Duration& peri
   }
   last_cmd_ = new_cmd_;
 
-  cmd_[0] = new_cmd_/2.0;
-  cmd_[1] = new_cmd_/2.0;
+  ROS_INFO_STREAM("GripperActionServer::write() -- " << new_cmd_);
+  // cmd_[0] = new_cmd_/2.0;
+  // cmd_[1] = new_cmd_/2.0;
 
   wsg_32_common::Move::Request req;
   wsg_32_common::Move::Response res;
