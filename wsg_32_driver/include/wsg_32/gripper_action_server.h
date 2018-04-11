@@ -107,7 +107,7 @@ private:
 
 public:
 
-GripperActionServer();
+GripperActionServer(ros::NodeHandle &nh);
 
 //------------------------------------------------------------------------
 // Global variables
@@ -135,7 +135,7 @@ bool objectGraspped;
 
  void goalCB(GoalHandle gh);
 
- bool initialize(ros::NodeHandle nh);
+ bool initialize();
 
  bool moveSrv(wsg_32_common::Move::Request &req,
 	      wsg_32_common::Move::Response &res);

@@ -45,26 +45,9 @@ namespace wsg_gripper_driver
 static const double MAX_OPENING = 0.07;
 static const double MAX_SPEED = 0.42;
 
-GripperActionServer::GripperActionServer() : 
+GripperActionServer::GripperActionServer(ros::NodeHandle &nh) : 
+  nh_(nh),
   is_running_(false)
-{
-
-  last_cmd_ = 0.0;
-  new_cmd_ = 0.0;
-  max_effort_ = 5.0;
-
-}
-
-bool GripperActionServer::preemptActiveCallback()
-{
-  if(current_active_goal_ && current_active_goal_->getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
-    current_active_goal_->setCanceled();
-  current_active_goal_.reset();
-  return true;
-}
-
-bool GripperActionServer::initialize(ros::NodeHandle nh) :
-  nh_(nh)
 {
 
   // connect and register the joint state interface
@@ -85,6 +68,22 @@ bool GripperActionServer::initialize(ros::NodeHandle nh) :
 
   registerInterface(&jnt_pos_interface_);
 
+  last_cmd_ = 0.0;
+  new_cmd_ = 0.0;
+  max_effort_ = 5.0;
+
+}
+
+bool GripperActionServer::preemptActiveCallback()
+{
+  if(current_active_goal_ && current_active_goal_->getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
+    current_active_goal_->setCanceled();
+  current_active_goal_.reset();
+  return true;
+}
+
+bool GripperActionServer::initialize()
+{
 
   // Services
   moveSS = nh_.advertiseService("wsg_gripper_driver/move", &GripperActionServer::moveSrv, this);
@@ -451,7 +450,7 @@ int main( int argc, char **argv )
   boost::shared_ptr<wsg_gripper_driver::GripperActionServer> gripper;
   boost::shared_ptr<ros::AsyncSpinner> spinner;
 
-  gripper = boost::make_shared<wsg_gripper_driver::GripperActionServer>();
+  gripper = boost::make_shared<wsg_gripper_driver::GripperActionServer>(nh);
   controller_manager::ControllerManager cm(&(*(gripper.get())), nh);
 
   spinner = boost::make_shared<ros::AsyncSpinner>(1);
@@ -459,7 +458,7 @@ int main( int argc, char **argv )
 
   ros::Rate rate(1.0 / gripper->getPeriod().toSec());
   if( cmd_connect_tcp( ip.c_str(), port ) == 0 ) {
-    if(!gripper->initialize(nh)) {
+    if(!gripper->initialize()) {
       ROS_ERROR("Unable to initialize gripper action server");
     }
     gripper->setRunning(true);
