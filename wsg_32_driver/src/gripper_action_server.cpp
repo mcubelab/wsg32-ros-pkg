@@ -436,7 +436,7 @@ void GripperActionServer::run()
 int main( int argc, char **argv )
 {
   ros::init(argc, argv, "wsg_gripper_driver");
-  ros::NodeHandle nh("~");
+  ros::NodeHandle nh;//("~");
 
   std::string ip;
   int port;
