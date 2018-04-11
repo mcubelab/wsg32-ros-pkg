@@ -378,6 +378,7 @@ void GripperActionServer::run()
 
     joint_state.header.stamp = ros::Time::now();
     double val = ((double) op)/1000.0;
+    joint_state.position[0] = val;
     joint_state.position[1] = val/2;
     joint_state.position[2] = val/2;
     joint_states_pub_.publish(joint_state);
