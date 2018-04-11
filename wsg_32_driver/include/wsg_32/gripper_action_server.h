@@ -96,6 +96,7 @@ private:
 
 	hardware_interface::JointStateInterface jnt_state_interface_;
 	hardware_interface::PositionJointInterface jnt_pos_interface_;
+
 	double cmd_[2];
 	double pos_[2];
 	double vel_[2];
@@ -134,7 +135,7 @@ bool objectGraspped;
 
  void goalCB(GoalHandle gh);
 
- bool initialize();
+ bool initialize(ros::NodeHandle nh);
 
  bool moveSrv(wsg_32_common::Move::Request &req,
 	      wsg_32_common::Move::Response &res);

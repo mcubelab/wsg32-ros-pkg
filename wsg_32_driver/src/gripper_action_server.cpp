@@ -49,6 +49,24 @@ GripperActionServer::GripperActionServer() :
   is_running_(false)
 {
 
+  last_cmd_ = 0.0;
+  new_cmd_ = 0.0;
+  max_effort_ = 5.0;
+
+}
+
+bool GripperActionServer::preemptActiveCallback()
+{
+  if(current_active_goal_ && current_active_goal_->getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
+    current_active_goal_->setCanceled();
+  current_active_goal_.reset();
+  return true;
+}
+
+bool GripperActionServer::initialize(ros::NodeHandle nh) :
+  nh_(nh)
+{
+
   // connect and register the joint state interface
   hardware_interface::JointStateHandle state_handle_gripper_left_joint("gripper_left_joint", &pos_[0], &vel_[0], &eff_[0]);
   jnt_state_interface_.registerHandle(state_handle_gripper_left_joint);
@@ -67,22 +85,7 @@ GripperActionServer::GripperActionServer() :
 
   registerInterface(&jnt_pos_interface_);
 
-  last_cmd_ = 0.0;
-  new_cmd_ = 0.0;
-  max_effort_ = 5.0;
 
-}
-
-bool GripperActionServer::preemptActiveCallback()
-{
-  if(current_active_goal_ && current_active_goal_->getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)
-    current_active_goal_->setCanceled();
-  current_active_goal_.reset();
-  return true;
-}
-
-bool GripperActionServer::initialize()
-{
   // Services
   moveSS = nh_.advertiseService("wsg_gripper_driver/move", &GripperActionServer::moveSrv, this);
   graspSS = nh_.advertiseService("wsg_gripper_driver/grasp", &GripperActionServer::graspSrv, this);
@@ -456,7 +459,7 @@ int main( int argc, char **argv )
 
   ros::Rate rate(1.0 / gripper->getPeriod().toSec());
   if( cmd_connect_tcp( ip.c_str(), port ) == 0 ) {
-    if(!gripper->initialize()) {
+    if(!gripper->initialize(nh)) {
       ROS_ERROR("Unable to initialize gripper action server");
     }
     gripper->setRunning(true);
@@ -468,6 +471,7 @@ int main( int argc, char **argv )
       cm.update(now, dt);
       gripper->write(now, dt);
       rate.sleep();
+      ros::spinOnce();
     }
 
   } else
