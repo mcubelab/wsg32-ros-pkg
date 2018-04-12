@@ -333,6 +333,12 @@ void GripperActionServer::read(const ros::Time& time, const ros::Duration& perio
   pos_[0] = val/2.0;
   pos_[1] = val/2.0;
 
+  vel_[0] = 0.0;
+  vel_[1] = 0.0;
+
+  eff_[0] = 0.0;
+  eff_[1] = 0.0;
+  
 }
 
 void GripperActionServer::write(const ros::Time& time, const ros::Duration& period) {
@@ -438,7 +444,7 @@ void GripperActionServer::run()
 int main( int argc, char **argv )
 {
   ros::init(argc, argv, "wsg_gripper_driver");
-  ros::NodeHandle nh;//("~");
+  ros::NodeHandle nh("/gripper_controller");
 
   std::string ip;
   int port;
