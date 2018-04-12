@@ -8,13 +8,17 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   std_srvs
+  actionlib
+  control_msgs
   wsg_32_common
+  hardware_interface
+  controller_manager
 )
 
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES vh_pixelmap
-  CATKIN_DEPENDS roscpp std_msgs std_srvs wsg_32_common
+  CATKIN_DEPENDS roscpp std_msgs std_srvs wsg_32_common control_msgs actionlib hardware_interface controller_manager
 #  DEPENDS system_lib
 )
 
@@ -29,7 +33,8 @@ set(DRIVER_SOURCES
   src/common.cpp include/wsg_32/common.h
   src/functions.cpp include/wsg_32/functions.h
   src/interface.cpp include/wsg_32/interface.h
-  src/main.cpp
+  # src/main.cpp
+  src/gripper_action_server.cpp include/wsg_32/gripper_action_server.h
   src/msg.c include/wsg_32/msg.h
   src/serial.c include/wsg_32/serial.h
   src/tcp.c include/wsg_32/tcp.h
@@ -47,9 +52,10 @@ add_definitions(-DOSNAME_LINUX)
 add_definitions(-g)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # Need C++11 
 
-add_executable(wsg_32_ip src/main.cpp ${DRIVER_SOURCES})
-add_dependencies(wsg_32_ip ${catkin_EXPORTED_TARGETS})
-target_link_libraries(wsg_32_ip ${catkin_LIBRARIES})
+# add_executable(wsg_32_ip src/main.cpp ${DRIVER_SOURCES})
+add_executable(gripper_server src/gripper_action_server.cpp ${DRIVER_SOURCES})
+add_dependencies(gripper_server ${catkin_EXPORTED_TARGETS})
+target_link_libraries(gripper_server ${catkin_LIBRARIES})
 
 #add_executable(wsg_32_can src/main_can.cpp src/checksum.cpp src/msg.c src/common.cpp src/functions_can.cpp)
 #add_executable(wsg_32_can src/main_can.cpp ${DRIVER_SOURCES_CAN})
